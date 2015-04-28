@@ -51,21 +51,36 @@ df['Gender'] = 4
 df['Gender'] = df['Sex'].map(lambda x: x[0].upper())
 df['Gender'] = df['Sex'].map({'female':0, 'male':1}).astype(np.int)
 
-# build reference table of mediate age on gender/pclass
+# build reference table of median age on gender/pclass
 median_ages = np.zeros((2,3))
 for i in range(0,2):
     for j in range(0,3):
         median_ages[i,j] = df[(df['Gender']==i)&(df['Pclass']==j+1)]['Age'].dropna().median()
 
 df['AgeFill'] = df['Age']
-df[df['Age'].isnull()][['Gender','Pclass','AgeFill']].head(10)
+df[df['Age'].isnull()][['Gender','Pclass','Age','AgeFill']].head(10)
 
 for i in range(0,2):
     for j in range(0,3):
         df.loc[(df.Age.isnull())&(df.Gender==i)&(df.Pclass==j+1),'AgeFill'] = median_ages[i,j]
 
+#df['Age'].isnull().astype(int)
+df['AgeIsNull'] = pd.isnull(df.Age).astype(int)
 
+# feature engineering
+df['FamilySize'] = df['Parch']+df['SibSp']
+df['Age*Pclass'] = df.AgeFill*df.Pclass
 
+#df['Age*Pclass'].hist()
+#p.show()
 
+# 1. clean all row with missing value
+# 2. remove all string column
+# 3. convert back to array
+df.dtypes[df.dtypes.map(lambda x: x=='object')]
+df_droped = df.drop(['Name','Sex','Ticket','Cabin','Embarked'],axis=1)
+df_droped = df_droped.dropna()
 
+train_data = df_droped.values
+train_data
 
